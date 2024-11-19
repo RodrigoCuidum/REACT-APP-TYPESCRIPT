@@ -1,64 +1,65 @@
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import "./App.css";
-
-const INITIAL_STATE = [
-  {
-    nick: "Dapelu",
-    subMonths: 3,
-    avatar: "https://i.pravatar.cc/150?u=dapelu",
-    description: "Dapelu hace de moderador a veces",
-  },
-  {
-    nick: "jamon_serrano",
-    subMonths: 7,
-    avatar: "https://i.pravatar.cc/150?u=sergio_serrano",
-  },
-];
-
-interface Sub {
-  nick: string;
-  avatar: string;
-  subMonths: number;
-  description?: string;
-}
+import List from "./components/List";
+import Form from "./components/Form";
+import { Sub, SubsResponseFromApi } from "./types";
 
 interface AppState {
-  subs: Array<Sub>
-  newSubsNumber: number
+  subs: Array<Sub>;
+  newSubsNumber: number;
 }
+
 function App() {
   const [subs, setSubs] = useState<AppState["subs"]>([]);
-  const [newSubsNumber, setNewSubsNumber] = useState<AppState["newSubsNumber"]>(0)
+  const [newSubsNumber, setNewSubsNumber] =
+    useState<AppState["newSubsNumber"]>(0);
+  const [newSubs, setNewSubs] = useState<string[]>([]);
+  const divRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setSubs([...INITIAL_STATE]);
+    const mapFromApiToSubs = (apiResponse: SubsResponseFromApi): Array<Sub> => {
+      return apiResponse.map((subFromApi) => {
+        const {
+          nick,
+          months: subMonths,
+          profileUrl: avatar,
+          description,
+        } = subFromApi;
+
+        return {
+          nick,
+          description,
+          avatar,
+          subMonths,
+        };
+      });
+    };
   }, []);
 
+  const handleNewSub = (newSub: Sub): void => {
+    setSubs((subs) => [...subs, newSub]);
+    setNewSubs((currentNewSubs) => [...currentNewSubs, newSub.nick]);
+    setNewSubsNumber((n) => n + 1);
+  };
+
+  const handleRemoveSub = (nickToRemove: string): void => {
+    setSubs((subs) => subs.filter((sub) => sub.nick !== nickToRemove));
+
+    setNewSubs((currentNewSubs) => {
+      if (currentNewSubs.includes(nickToRemove)) {
+        setNewSubsNumber((n) => (n > 0 ? n - 1 : 0));
+        return currentNewSubs.filter((nick) => nick !== nickToRemove);
+      }
+      return currentNewSubs;
+    });
+  };
+
   return (
-    <div className="App">
+    <div className="App" ref={divRef}>
       <h1>Yurii Subs</h1>
-      <ul>
-        {subs.map((sub) => {
-          return (
-            <li key={sub.nick}>
-              <img src={sub.avatar} alt={`Avatar for ${sub.nick}`}></img>
-              <h4>
-                {sub.nick} (<small>{sub.subMonths}</small>)
-              </h4>
-              <p
-                style={
-                  !sub.description
-                    ? { fontSize: "0.8em", color: "#888" }
-                    : undefined
-                }
-              >
-                {sub.description?.substring(0, 50) ||
-                  'No description'}
-              </p>
-            </li>
-          );
-        })}
-      </ul>
+      <List subs={subs} onRemoveSub={handleRemoveSub} />
+      <p>New subs: {newSubsNumber}</p>
+      <Form onNewSub={handleNewSub} />
     </div>
   );
 }

@@ -7,6 +7,18 @@ body {
   -moz-osx-font-smoothing: grayscale;
   display: grid;
   place-content: center;
+  background-color: #454545;
+  color: #FFF;
+}
+
+textarea {
+  font-family: inherit;
+  margin-bottom: 8px;
+  padding-left: 5px;
+  background-color: #656565;
+  color: #ffffff;
+  border: 2px solid #000000;
+
 }
 
 code {
@@ -27,9 +39,31 @@ img {
 
 ul li {
   border-radius: 4px;
-  border: 1px solid #eee;
+  border: 1px solid #000000;
+  background-color: #656565;
   list-style: none;
   margin-bottom: 16px;
   max-width: 320px;
   padding: 8px 32px;
+  color: #ffffff;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+form input {
+  border: 2px solid #000000;
+  border-radius: 5px;
+  padding: 4px 6px;
+  margin: 0px 0px 6px;
+  background-color: #656565;
+  color: #ffffff;
+}
+
+button {
+  background-color: #757575;
+  border-radius: 5px;
+  margin: 0 135px;
 }
